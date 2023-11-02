@@ -1,0 +1,8 @@
+Switch  : 0xf45214030095bdf0 ports 36 "MF0;fdrleaf-xx5a-66:SX0000/U1" enhanced port 0 lid 574 lmc 0
+Switch  : 0xf45214030095b470 ports 36 "MF0;leaf-xx5a-60:SX0000/U1" enhanced port 0 lid 631 lmc 0
+Switch  : 0x1070fd0300370ea2 ports 41 "MF0;qm8700-5:MQM8700/U1" enhanced port 0 lid 774 lmc 0
+Switch  : 0x1070fd030003aeb8 ports 41 "hdrleaf-xx5a-60" base port 0 lid 924 lmc 0
+Switch  : 0x7cfe90030097cd70 ports 36 "SwitchX -  Mellanox Technologies" base port 0 lid 203 lmc 0
+Switch  : 0xf45214030095d610 ports 36 "MF0;leaf-xx5a-2c:SX0000/U1" enhanced port 0 lid 27 lmc 0
+Switch  : 0x08c0eb0300a026b6 ports 81 "hdrleaf-xx6a-26" base port 0 lid 13 lmc 0
+Switch  : 0x1070fd03000f4b72 ports 41 "Quantum Mellanox Technologies" base port 0 lid 770 lmc 0
