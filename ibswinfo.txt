@@ -1,0 +1,7 @@
+psu0.status        : OK
+psu0.dc            : OK
+psu0.fan           : OK
+psu1.status        : ERROR
+psu1.dc            : ERROR
+psu1.fan           : ERROR
+fans               : OK

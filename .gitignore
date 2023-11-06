@@ -1,2 +1,2 @@
 prometheus-infiniband-exporter
-exporter_test.go
+main.test

@@ -1,27 +1,101 @@
 // -*- coding: utf-8 -*-
 //
-// Copyright 2023 GSI Helmholtz Centre for Heavy Ion Research
+// © Copyright 2023 GSI Helmholtzzentrum für Schwerionenforschung
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
+// This software is distributed under
+// the terms of the GNU General Public Licence version 3 (GPL Version 3),
+// copied verbatim in the file "LICENCE".
 
 package ib
 
-// Public for testing
-func ExtractIbswinfoStatus(input string) (string, error) {
-	return "", nil
+import (
+	"fmt"
+	"prometheus-infiniband-exporter/util"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+func NewSwinfoStatus() *SwinfoStatus {
+	s := SwinfoStatus{}
+	s.Psus = make(map[int]*SwinfoPsu)
+	return &s
 }
 
-func QueryIbswinfo(lid int) (string, error) {
-	return "", nil
+func newSwinfoPsu() *SwinfoPsu {
+	return &SwinfoPsu{}
+}
+
+func NewSwinfoPsuWtihArgs(status bool, dc bool, fan bool) *SwinfoPsu {
+	return &SwinfoPsu{status, dc, fan}
+}
+
+type SwinfoStatus struct {
+	Psus map[int]*SwinfoPsu
+	Fans bool
+}
+
+type SwinfoPsu struct {
+	Status bool
+	Dc     bool
+	Fan    bool
+}
+
+var (
+	ibswinfoPsuRegex = regexp.MustCompile(`(?m:^psu(?P<psu>[\d])\.(?P<cmp>status|dc|fan)\s*\:\s*(?P<val>OK|ERROR)$)`)
+	ibswinfoPsuIndex = ibswinfoPsuRegex.SubexpIndex("psu")
+	ibswinfoCmpIndex = ibswinfoPsuRegex.SubexpIndex("cmp")
+	ibswinfoValIndex = ibswinfoPsuRegex.SubexpIndex("val")
+
+	ibswinfoFansRegex = regexp.MustCompile(`(?m:^fans\s*\: (?P<val>OK|ERROR)$)`)
+	ibswinfoFansIndex = ibswinfoFansRegex.SubexpIndex("val")
+)
+
+func ExtractIbswinfoStatus(input string) (*SwinfoStatus, error) {
+	swStatus := NewSwinfoStatus()
+	for _, line := range strings.Split(strings.TrimSuffix(input, "\n"), "\n") {
+
+		if ibswinfoPsuRegex.MatchString(line) {
+			ibswinfoPsu := ibswinfoPsuRegex.FindStringSubmatch(line)
+
+			index, _ := strconv.Atoi(ibswinfoPsu[ibswinfoPsuIndex])
+			swPsu, ok := swStatus.Psus[index]
+			if ok != true {
+				swPsu = newSwinfoPsu()
+				swStatus.Psus[index] = swPsu
+			}
+
+			valOk := true
+			if ibswinfoPsu[ibswinfoValIndex] != "OK" {
+				valOk = false
+			}
+
+			comp := ibswinfoPsu[ibswinfoCmpIndex]
+			if comp == "status" {
+				swPsu.Status = valOk
+			} else if comp == "dc" {
+				swPsu.Dc = valOk
+			} else if comp == "fan" {
+				swPsu.Fan = valOk
+			}
+		} else if ibswinfoFansRegex.MatchString(line) {
+			ibswinfoFans := ibswinfoFansRegex.FindStringSubmatch(line)
+			if ibswinfoFans[ibswinfoFansIndex] == "OK" {
+				swStatus.Fans = true
+			}
+		} else {
+			return nil, fmt.Errorf("No regex match for line: %s", line)
+		}
+	}
+	return swStatus, nil
+}
+
+func QueryIbswinfoStatus(lid int) (string, error) {
+	lidStr := "lid-" + strconv.Itoa(lid)
+	output, err := util.ExecuteCommandWithSudo("ibswinfo.sh", "-d", lidStr, "-o", "status")
+	if err != nil {
+		return "", fmt.Errorf("ibswinfo failed for lid %d\n"+err.Error(), lid)
+	}
+
+	return *output, nil
 }
