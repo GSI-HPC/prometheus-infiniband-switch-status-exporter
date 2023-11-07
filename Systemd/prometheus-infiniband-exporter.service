@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus InfiniBand Exporter
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/prometheus-infiniband-exporter.options
+ExecStart=/usr/bin/prometheus-infiniband-exporter $OPTIONS
+User=root
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
