@@ -10,7 +10,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
+	"os"
 	"prometheus-infiniband-exporter/collector"
 	logging "prometheus-infiniband-exporter/logging"
 
@@ -29,6 +31,7 @@ var (
 )
 
 func main() {
+	printVersion := flag.Bool("version", false, "Print version")
 	port := flag.String("port", defaultPort, "The port to listen on for HTTP requests")
 	logLevel := flag.String("log", logging.DefaultLogLevel, "Sets log level - ERROR, WARNING, INFO, DEBUG or TRACE")
 	collectSwitches := flag.Bool("collect-switches-status", false, "Enables collecting of switches status information")
@@ -36,6 +39,11 @@ func main() {
 	flag.Parse()
 
 	logging.InitLogging(*logLevel)
+
+	if *printVersion {
+		fmt.Println("Version:", version)
+		os.Exit(0)
+	}
 
 	collectorCreator = make(map[string]collector.NewCollectorHandle)
 
