@@ -25,7 +25,7 @@ func createScrapeOkMetric(collector string, value float64) prometheus.Metric {
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "collector", "scrape_ok"),
-			"Indicates if scrape of a collector was OK",
+			"Indicates if scrape of a collector was OK (1), otherwise failed (0)",
 			[]string{"name"},
 			nil,
 		),
@@ -33,4 +33,11 @@ func createScrapeOkMetric(collector string, value float64) prometheus.Metric {
 		value,
 		collector,
 	)
+}
+
+func convertBoolToFloat(value bool) float64 {
+	if value == true {
+		return 1.0
+	}
+	return 0
 }
