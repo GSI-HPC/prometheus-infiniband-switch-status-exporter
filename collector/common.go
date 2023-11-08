@@ -13,7 +13,7 @@ import "github.com/prometheus/client_golang/prometheus"
 const Namespace = "infiniband"
 
 // Function signature for NewCollector...
-type NewCollectorHandle func() prometheus.Collector
+type NewCollectorHandle func(configFile string) prometheus.Collector
 
 type metricTemplate struct {
 	desc         *prometheus.Desc
@@ -40,4 +40,13 @@ func convertBoolToFloat(value bool) float64 {
 		return 1.0
 	}
 	return 0
+}
+
+func Contains(slice []int, value int) bool {
+	for _, sliceVal := range slice {
+		if sliceVal == value {
+			return true
+		}
+	}
+	return false
 }

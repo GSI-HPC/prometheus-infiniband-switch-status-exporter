@@ -9,6 +9,7 @@
 package collector
 
 import (
+	"prometheus-infiniband-exporter/config"
 	"prometheus-infiniband-exporter/ib"
 	"strconv"
 
@@ -19,14 +20,21 @@ import (
 const SwitchesStatusCollectorName = "switches_status"
 
 type SwitchesStatusCollector struct {
+	excludeSwitchesLids []int
 }
 
-func NewSwitchesStatusCollector() prometheus.Collector {
+func NewSwitchesStatusCollector(configFile string) prometheus.Collector {
+	if configFile != "" {
+		return &SwitchesStatusCollector{
+			config.NewConfigFileReader(configFile).ExcludeSwitchesLids}
+	}
 	return &SwitchesStatusCollector{}
 }
 
 func (c *SwitchesStatusCollector) Collect(ch chan<- prometheus.Metric) {
 	log.Debugln("Collecting status information of switches...")
+
+	var switchIdsToProcess ib.IbswitchesIds
 
 	switchesIds, err := ib.QueryIbswitchesIds()
 
@@ -36,9 +44,20 @@ func (c *SwitchesStatusCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
+	if len(c.excludeSwitchesLids) != 0 {
+		switchIdsToProcess = make(ib.IbswitchesIds)
+		for lid, name := range switchesIds {
+			if Contains(c.excludeSwitchesLids, lid) == false {
+				switchIdsToProcess[lid] = name
+			}
+		}
+	} else {
+		switchIdsToProcess = switchesIds
+	}
+
 	scrapeOk := 1.0
 
-	for lid, name := range switchesIds {
+	for lid, name := range switchIdsToProcess {
 
 		status, err := ib.QueryIbswinfoStatus(lid)
 

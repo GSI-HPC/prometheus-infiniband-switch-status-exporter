@@ -9,22 +9,16 @@
 package main
 
 import (
-	"flag"
-	"os"
+	"prometheus-infiniband-exporter/config"
 	"prometheus-infiniband-exporter/ib"
-	"prometheus-infiniband-exporter/logging"
 	"prometheus-infiniband-exporter/util"
 	"testing"
 )
 
-const (
-	defaultIbswitchesFile = "ibswitches.txt"
-	defaultIbswinfoFile   = "ibswinfo.txt"
-)
-
 var (
-	ibswitchesFile *string
-	ibswinfoFile   *string
+	testConfigFile     = "config_example.yml"
+	testIbswitchesFile = "ibswitches.txt"
+	testIbswinfoFile   = "ibswinfo.txt"
 )
 
 func TestQueryIbswitches(t *testing.T) {
@@ -37,7 +31,7 @@ func TestQueryIbswitches(t *testing.T) {
 		t.Errorf("ExtractSwitchesId must return an error on no valid data")
 	}
 
-	output := util.MustReadFile(ibswitchesFile)
+	output := util.MustReadFile(&testIbswitchesFile)
 
 	data, err = ib.ExtractIbswitchesIds(output)
 
@@ -73,7 +67,7 @@ func TestIbswinfoSwitchStatus(t *testing.T) {
 	expectedSwinfoStatus.Psus[1] = ib.NewSwinfoPsuWtihArgs(false, false, false)
 	expectedSwinfoStatus.Fans = true
 
-	output := util.MustReadFile(ibswinfoFile)
+	output := util.MustReadFile(&testIbswinfoFile)
 	receivedSwinfoStatus, _ := ib.ExtractIbswinfoStatus(output)
 
 	for psuIndex, expectedPsuInfo := range expectedSwinfoStatus.Psus {
@@ -102,14 +96,13 @@ func TestIbswinfoSwitchStatus(t *testing.T) {
 	}
 }
 
-func TestMain(m *testing.M) {
-	ibswitchesFile = flag.String("ibswitchesFile", defaultIbswitchesFile, "A text file with output generated from ibswitches")
-	ibswinfoFile = flag.String("ibswinfoFile", defaultIbswinfoFile, "A text file with output generated from ibswinfo.sh with status information")
-	logLevel := flag.String("log", logging.DefaultLogLevel, "Sets log level - ERROR, WARNING, INFO, DEBUG or TRACE")
+func TestSwitchesLids(t *testing.T) {
+	configFileReader := config.NewConfigFileReader(testConfigFile)
 
-	flag.Parse()
-
-	logging.InitLogging(*logLevel)
-
-	os.Exit(m.Run())
+	expectedLenSwitchesLids := 8
+	receivedLenSwitchesLids := len(configFileReader.ExcludeSwitchesLids)
+	if expectedLenSwitchesLids != receivedLenSwitchesLids {
+		t.Errorf("Count of switches lids failed, expected: %d, received: %d",
+			expectedLenSwitchesLids, receivedLenSwitchesLids)
+	}
 }

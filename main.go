@@ -23,11 +23,12 @@ import (
 
 const (
 	defaultPort = "9860"
-	version     = "0.0.1"
+	version     = "0.0.2"
 )
 
 var (
 	collectorCreator map[string]collector.NewCollectorHandle
+	configFile       *string
 )
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 	port := flag.String("port", defaultPort, "The port to listen on for HTTP requests")
 	logLevel := flag.String("log", logging.DefaultLogLevel, "Sets log level - ERROR, WARNING, INFO, DEBUG or TRACE")
 	collectSwitches := flag.Bool("collect-switches-status", false, "Enables collecting of switches status information")
+	configFile = flag.String("configFile", "", "Config file to be used")
 
 	flag.Parse()
 
@@ -58,7 +60,7 @@ func main() {
 
 	for name, collector := range collectorCreator {
 		log.Debug("Enable collector ", name)
-		prometheus.MustRegister(collector())
+		prometheus.MustRegister(collector(*configFile))
 	}
 
 	http.Handle("/metrics", promhttp.Handler())
