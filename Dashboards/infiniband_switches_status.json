@@ -95,7 +95,7 @@
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 5,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -185,7 +185,7 @@
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -338,7 +338,7 @@
             "h": 10,
             "w": 24,
             "x": 0,
-            "y": 13
+            "y": 15
           },
           "id": 2,
           "options": {
@@ -432,7 +432,7 @@
             "h": 11,
             "w": 24,
             "x": 0,
-            "y": 23
+            "y": 25
           },
           "id": 4,
           "options": {
@@ -526,7 +526,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 34
+            "y": 36
           },
           "id": 6,
           "options": {
@@ -634,7 +634,7 @@
             "h": 9,
             "w": 24,
             "x": 0,
-            "y": 6
+            "y": 16
           },
           "id": 8,
           "options": {
@@ -687,6 +687,6 @@
   "timezone": "",
   "title": "InfiniBand Switches Status",
   "uid": "jnJO9Q4Iz",
-  "version": 7,
+  "version": 8,
   "weekStart": ""
 }
