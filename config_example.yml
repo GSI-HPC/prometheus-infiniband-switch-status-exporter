@@ -1,3 +1,4 @@
+# Exclude unsupported switches e.g. FDR switches by lid
 exclude_switch_lids:
   - 10
   - 11
