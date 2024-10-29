@@ -30,9 +30,13 @@ func MustReadFile(file *string) string {
 }
 
 func ExecuteCommandWithSudo(command string, args ...string) (*string, error) {
-	cmdWithArgs := append([]string{command}, args...)
+	cmd := exec.Command(command, args...)
 
-	cmd := exec.Command("sudo", cmdWithArgs...)
+	uid := os.Getuid()
+	if uid != 0 {
+		cmdWithArgs := append([]string{command}, args...)
+		cmd = exec.Command("sudo", cmdWithArgs...)
+	}
 
 	log.Debug("Executing command: ", cmd.String())
 
