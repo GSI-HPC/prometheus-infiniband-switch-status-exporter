@@ -1,0 +1,24 @@
+---
+# SPDX-FileCopyrightText: 2024 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH
+# SPDX-License-Identifier: CC0-1.0
+name: "Simple Build Test"
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '', 'stable' ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go }}
+        go-version-file: 'go.mod'
+    - name: Build it
+      run: |
+        go version
+        echo ""
+        go build -v
